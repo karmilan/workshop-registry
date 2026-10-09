@@ -69,7 +69,7 @@ Sign in with this **local development-only** Admin account:
 
 | Email | Password |
 | --- | --- |
-| `admin@demo.com` | `WorkshopAdmin123!` |
+| `admin@demo.com` | `admin123` |
 
 The seed creates these scheduled sample workshops, dated relative to the time you run the seed:
 
