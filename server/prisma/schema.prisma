@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  STAFF
+}
+
+enum WorkshopStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum RegistrationStatus {
+  ACTIVE
+  CANCELLED
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  role         Role
+  createdAt    DateTime @default(now())
+
+  createdRegistrations   Registration[] @relation("RegistrationCreatedBy")
+  cancelledRegistrations Registration[] @relation("RegistrationCancelledBy")
+}
+
+model Workshop {
+  id          String         @id @default(uuid())
+  code        String         @unique
+  title       String
+  instructor  String
+  scheduledAt DateTime
+  capacity    Int
+  status      WorkshopStatus @default(SCHEDULED)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  registrations Registration[]
+}
+
+model Registration {
+  id                      String             @id @default(uuid())
+  workshopId              String
+  attendeeName            String
+  attendeeEmail           String
+  attendeeEmailNormalized String
+  status                  RegistrationStatus @default(ACTIVE)
+  createdByUserId         String
+  createdAt               DateTime           @default(now())
+  cancelledByUserId       String?
+  cancelledAt             DateTime?
+
+  workshop    Workshop @relation(fields: [workshopId], references: [id])
+  createdBy   User     @relation("RegistrationCreatedBy", fields: [createdByUserId], references: [id])
+  cancelledBy User?    @relation("RegistrationCancelledBy", fields: [cancelledByUserId], references: [id])
+
+  @@index([workshopId, status])
+}
